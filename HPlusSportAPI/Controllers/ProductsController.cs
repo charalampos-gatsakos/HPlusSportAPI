@@ -1,4 +1,5 @@
-﻿using HPlusSportAPI.Models;
+﻿using HPlusSportAPI.Classes;
+using HPlusSportAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,20 +24,44 @@ namespace HPlusSportAPI.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts()
+        public async Task<IActionResult> GetAllProducts([FromQuery] ProductQueryParameters queryParameters)
         {
-            return  Ok(await _context.Products.ToArrayAsync());
+            IQueryable<Product> products = _context.Products;
+
+            if(queryParameters.MinPrice != null &&
+                queryParameters.MaxPrice != null)
+            {
+                products = products.Where(
+                    p => p.Price >= queryParameters.MinPrice.Value &&
+                         p.Price <= queryParameters.MaxPrice.Value);
+            }
+            if (!string.IsNullOrEmpty(queryParameters.Sku))
+            {
+                products = products.Where(p => p.Sku == queryParameters.Sku);
+            }
+
+            if (!string.IsNullOrEmpty(queryParameters.Name))
+            {
+                products = products.Where(
+                    p => p.Name.ToLower().Contains(queryParameters.Name.ToLower()));
+            }
+
+            products = products
+                .Skip(queryParameters.Size * (queryParameters.Page - 1))
+                .Take(queryParameters.Size);
+
+            return  Ok(await products.ToArrayAsync());
         }
 
         [HttpGet("{id}")]
         public async Task<IActionResult> GetProduct(int id)
         {
-            var projuct = await _context.Products.FindAsync(id);
-            if(projuct == null)
+            var product = await _context.Products.FindAsync(id);
+            if(product == null)
             {
                 return NotFound();
             }
-            return Ok(projuct);
+            return Ok(product);
         }
     }
 }
