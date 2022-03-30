@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace HPlusSportAPI.Models
+namespace HPlusSport.API.Models
 {
     public class Order
     {

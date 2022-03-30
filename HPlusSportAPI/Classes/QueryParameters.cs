@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HPlusSportAPI.Classes
+namespace HPlusSport.API.Classes
 {
     public class QueryParameters
     {
@@ -12,8 +12,8 @@ namespace HPlusSportAPI.Classes
 
         public int Page { get; set; }
         public int Size
-        { 
-            get 
+        {
+            get
             {
                 return _size;
             }
@@ -22,6 +22,7 @@ namespace HPlusSportAPI.Classes
                 _size = Math.Min(_maxSize, value);
             }
         }
+
         public string SortBy { get; set; } = "Id";
 
         private string _sortOrder = "asc";
@@ -33,7 +34,7 @@ namespace HPlusSportAPI.Classes
             }
             set
             {
-                if(value == "asc" || value == "desc")
+                if (value == "asc" || value == "desc")
                 {
                     _sortOrder = value;
                 }

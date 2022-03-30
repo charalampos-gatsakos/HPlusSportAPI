@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using HPlusSport.API.Classes;
 using HPlusSport.API.Models;
-using HPlusSportAPI.Classes;
-using HPlusSportAPI.Models;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -17,16 +16,14 @@ namespace HPlusSport.API.Controllers
     {
         private readonly ShopContext _context;
 
-        public ProductsController(ShopContext context)
-        {
+        public ProductsController(ShopContext context) {
             _context = context;
 
             _context.Database.EnsureCreated();
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAllProducts([FromQuery] ProductQueryParameters queryParameters)
-        {
+        public async Task<IActionResult> GetAllProducts([FromQuery] ProductQueryParameters queryParameters) {
             IQueryable<Product> products = _context.Products;
 
             if (queryParameters.MinPrice != null &&
@@ -70,8 +67,7 @@ namespace HPlusSport.API.Controllers
         }
 
         [HttpGet("{id}")]
-        public async Task<IActionResult> GetProduct(int id)
-        {
+        public async Task<IActionResult> GetProduct(int id){
             var product = await _context.Products.FindAsync(id);
             if (product == null)
             {
@@ -81,7 +77,7 @@ namespace HPlusSport.API.Controllers
         }
 
         [HttpPost]
-        public async Task<ActionResult<Product>> PostProduct([FromBody] Product product)
+        public async Task<ActionResult<Product>> PostProduct([FromBody]Product product)
         {
             _context.Products.Add(product);
             await _context.SaveChangesAsync();
@@ -96,21 +92,19 @@ namespace HPlusSport.API.Controllers
         [HttpPut("{id}")]
         public async Task<IActionResult> PutProduct([FromRoute] int id, [FromBody] Product product)
         {
-            if (id != product.Id)
-            {
+            if (id != product.Id) {
                 return BadRequest();
             }
 
             _context.Entry(product).State = EntityState.Modified;
 
-            try
+            try 
             {
                 await _context.SaveChangesAsync();
-            }
-            catch (DbUpdateConcurrencyException)
+            } 
+            catch (DbUpdateConcurrencyException) 
             {
-                if (_context.Products.Find(id) == null)
-                {
+                if (_context.Products.Find(id) == null) {
                     return NotFound();
                 }
 
@@ -118,7 +112,21 @@ namespace HPlusSport.API.Controllers
             }
 
             return NoContent();
+        }
 
+        [HttpDelete("{id}")]
+        public async Task<ActionResult<Product>> DeleteProduct(int id)
+        {
+            var product = await _context.Products.FindAsync(id);
+            if (product == null)
+            {
+                return NotFound();
+            }
+
+            _context.Products.Remove(product);
+            await _context.SaveChangesAsync();
+
+            return product;
         }
     }
 }

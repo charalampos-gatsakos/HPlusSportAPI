@@ -1,5 +1,4 @@
-﻿using HPlusSportAPI.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
 
 namespace HPlusSport.API.Models
 {

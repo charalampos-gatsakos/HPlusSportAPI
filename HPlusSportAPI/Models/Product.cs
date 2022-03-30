@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
-namespace HPlusSportAPI.Models
+namespace HPlusSport.API.Models
 {
     public class Product
     {
@@ -21,6 +21,5 @@ namespace HPlusSportAPI.Models
         public int CategoryId { get; set; }
         [JsonIgnore]
         public virtual Category Category { get; set; }
-
     }
 }

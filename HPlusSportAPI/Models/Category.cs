@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace HPlusSportAPI.Models
+namespace HPlusSport.API.Models
 {
     public class Category
     {
