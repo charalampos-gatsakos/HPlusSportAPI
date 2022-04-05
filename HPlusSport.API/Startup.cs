@@ -2,7 +2,6 @@ using HPlusSport.API.Classes;
 using HPlusSport.API.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ApiExplorer;
 using Microsoft.AspNetCore.Mvc.Versioning;
@@ -10,15 +9,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Swashbuckle.AspNetCore.SwaggerGen;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 
-namespace HPlusSportAPI
+namespace HPlusSport.API
 {
     public class Startup
     {
@@ -35,17 +29,43 @@ namespace HPlusSportAPI
             services.AddDbContext<ShopContext>(options =>
                 options.UseInMemoryDatabase("Shop"));
             services.AddControllers()
-                .ConfigureApiBehaviorOptions(options =>
+                .ConfigureApiBehaviorOptions(options => 
                 {
                     // options.SuppressModelStateInvalidFilter = true;
                 }
                 );
 
+            services.AddAuthentication("Bearer")
+                .AddJwtBearer("Bearer", options =>
+                {
+                    options.Authority = "http://localhost:51959";
+                    options.RequireHttpsMetadata = false;
+
+                    options.Audience = "hps-api";
+
+                    options.TokenValidationParameters =
+                    new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                    {
+                        ValidateAudience = false
+                    };
+
+                });
+
+            services.AddCors(options =>
+            {
+                options.AddDefaultPolicy(builder =>
+                {
+                    builder.WithOrigins("https://localhost:44375")
+                           .AllowAnyHeader()
+                           .AllowAnyMethod();
+                });
+            });
+
             services.AddApiVersioning(options => {
                 options.ReportApiVersions = true;
                 options.DefaultApiVersion = new ApiVersion(1, 0);
                 options.AssumeDefaultVersionWhenUnspecified = true;
-                options.ApiVersionReader =
+                options.ApiVersionReader = 
                     new HeaderApiVersionReader("X-API-Version");
             });
 
@@ -67,8 +87,11 @@ namespace HPlusSportAPI
 
             app.UseRouting();
 
-            app.UseAuthorization();
+            app.UseCors();
 
+            app.UseAuthentication();
+            app.UseAuthorization();
+            
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
@@ -76,15 +99,16 @@ namespace HPlusSportAPI
 
             app.UseSwagger();
             app.UseSwaggerUI(options =>
-            {
-                foreach (var description in provider.ApiVersionDescriptions)
                 {
-                    options.SwaggerEndpoint(
-                        $"/swagger/{description.GroupName}/swagger.json",
-                        description.GroupName.ToUpperInvariant());
+                    foreach (var description in provider.ApiVersionDescriptions) 
+                    {
+                        options.SwaggerEndpoint(
+                            $"/swagger/{description.GroupName}/swagger.json",
+                            description.GroupName.ToUpperInvariant());    
+                    }
                 }
-            }
                );
         }
     }
+
 }
